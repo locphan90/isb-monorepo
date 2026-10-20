@@ -37,6 +37,10 @@
           @click="">
           Do smth Once
       </v-btn>
+      <v-btn class="text-none mr-2" type="submit" color="primary" :disabled="ui.view2Show.isBusy" :loading="ui.view2Show.isBusy" 
+          @click="">
+          Test refresh deploy vercel
+      </v-btn>
       
     </v-row>
   </div>
