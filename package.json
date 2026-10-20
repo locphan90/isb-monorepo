@@ -1,0 +1,15 @@
+{
+  "name": "isb-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:staff": "npm run dev -w @isb/staff",
+    "dev:student": "npm run dev -w @isb/student",
+    "build:staff": "npm run build -w @isb/staff",
+    "build:student": "npm run build -w @isb/student",
+    "build": "npm run build:staff && npm run build:student"
+  }
+}

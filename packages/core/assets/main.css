@@ -1,0 +1,78 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  margin: 0;
+  color: #1e293b;
+  -webkit-font-smoothing: antialiased;
+}
+/* Input của Vuetify có class .v-field__input. Trong .student-shell và .native-fields thì
+   KHÔNG áp style input toàn cục bên dưới, để dùng giao diện gốc của Vuetify (label nổi
+   trên viền không bị đường viền thứ 2 cắt qua). Muốn ô nào dùng kiểu này, thêm class native-fields. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not(:where(.student-shell .v-field__input, .native-fields .v-field__input)),
+select,
+textarea:not(:where(.student-shell .v-field__input, .native-fields .v-field__input)) {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--field-border);
+  border-radius: var(--field-radius);
+  background: #fff;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  line-height: 1.5;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not(:where(.student-shell .v-field__input, .native-fields .v-field__input)):focus,
+select:focus,
+textarea:not(:where(.student-shell .v-field__input, .native-fields .v-field__input)):focus {
+  border-color: var(--field-border-focus);
+  box-shadow: 0 0 0 3px rgb(8 85 227 / 12%);
+}
+
+input:disabled:not(:where(.student-shell .v-field__input, .native-fields .v-field__input)),
+select:disabled,
+textarea:disabled:not(:where(.student-shell .v-field__input, .native-fields .v-field__input)) {
+  background: #f8fafc;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* ── Vuetify select / autocomplete / combobox ───────────────────────────────
+   Các ô này chứa <input> ẩn bên trong v-field. Rule toàn cục ở trên gán border, padding,
+   nền trắng cho mọi <input> nên input ẩn bị vẽ thêm khung thứ 2 lệch bên trong ô.
+   Trả input này về trạng thái trong suốt, chỉ giữ viền ngoài do Vuetify (v-field) vẽ.
+   Dùng !important vì rule toàn cục có độ ưu tiên cao hơn (chuỗi :not() ở trên). */
+:where(.v-select, .v-autocomplete, .v-combobox) .v-field input {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+/* ── Checkbox / Radio ────────────────────────────────────────────────────────*/
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--checkbox-color);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── Typography ──────────────────────────────────────────────────────────────*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0 0 0.5em;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+p { margin: 0; }
+
+a { color: var(--field-border-focus); }

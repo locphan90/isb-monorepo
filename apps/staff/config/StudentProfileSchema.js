@@ -1,0 +1,134 @@
+// config/StudentProfileSchema.js
+export const studentProfileSchema = {
+  groups: [
+    {
+      key: 'basic',
+      label: 'Basic Information',
+      groupJsonPath: '', // nằm ngay gốc obj_json, không phải object con
+      fields: [
+        { key: 'StudentID', jsonKey: 'StudentID', label: 'Student ID', type: 'text' },
+        { key: 'FullName', jsonKey: 'FullName', label: 'Full Name', type: 'text' },
+      ],
+    },
+    {
+      key: 'objProfile',
+      label: 'General Profile',
+      groupJsonPath: 'objProfile',
+      fields: [
+        { key: 'MSSV', jsonKey: 'MSSV', label: 'MSSV', type: 'text' },
+        { key: 'Klass', jsonKey: 'Klass', label: 'Class', type: 'text' },
+        { key: 'PRG', jsonKey: 'PRG', label: 'Program', type: 'text' },
+        { key: 'MOET', jsonKey: 'MOET', label: 'MOET', type: 'text' },
+        { key: 'Major', jsonKey: 'Major', label: 'Major', type: 'text' },
+        { key: 'Gender', jsonKey: 'Gender', label: 'Gender', type: 'text' },
+        { key: 'DOB', jsonKey: 'DOB', label: 'Date of Birth', type: 'date' },
+        { key: 'IDNo', jsonKey: 'IDNo', label: 'CCCD/CMND', type: 'text' },
+        { key: 'PhoneNo', jsonKey: 'PhoneNo', label: 'Phone Number', type: 'text' },
+        { key: 'Personalmail', jsonKey: 'Personalmail', label: 'Personal Email', type: 'text' },
+        { key: 'SchoolMail', jsonKey: 'SchoolMail', label: 'School Email', type: 'text' },
+        { key: 'RegAddress', jsonKey: 'RegAddress', label: 'Address', type: 'text' },
+        { key: 'RegCity', jsonKey: 'RegCity', label: 'City/Province', type: 'text' },
+        { key: 'RegCountry', jsonKey: 'RegCountry', label: 'Country', type: 'text' },
+        { key: 'Company', jsonKey: 'Company', label: 'Company', type: 'text' },
+        { key: 'Position', jsonKey: 'Position', label: 'Position', type: 'text' },
+        { key: 'Expertise', jsonKey: 'Expertise', label: 'Expertise', type: 'text' },
+        { key: 'EntryDate', jsonKey: 'EntryDate', label: 'Entry Date', type: 'date' },
+        { key: 'GradDate', jsonKey: 'GradDate', label: 'Graduation Date', type: 'date' },
+        { key: 'GradFrom', jsonKey: 'GradFrom', label: 'Graduated From', type: 'text' },
+        { key: 'GradYear', jsonKey: 'GradYear', label: 'Graduation Year', type: 'text' },
+        { key: 'GradCountry', jsonKey: 'GradCountry', label: 'Graduation Country', type: 'text' },
+        { key: 'BankName', jsonKey: 'BankName', label: 'Bank', type: 'text' },
+        { key: 'BankAcct', jsonKey: 'BankAcct', label: 'Account Number', type: 'text' },
+        { key: 'Fee', jsonKey: 'Fee', label: 'Tuition Fee', type: 'currency' },
+        { key: 'PIC', jsonKey: 'PIC', label: 'Person in Charge', type: 'text' },
+        { key: 'Branch', jsonKey: 'Branch', label: 'Branch', type: 'text' },
+        { key: 'EmergencyCtc', jsonKey: 'EmergencyCtc', label: 'Emergency Contact', type: 'text' },
+        { key: 'RMK', jsonKey: 'RMK', label: 'Notes', type: 'text' },
+      ],
+    },
+    {
+      key: 'objEng',
+      label: 'English Certificate',
+      groupJsonPath: 'objEng',
+      fields: [
+        { key: 'EnglishTest', jsonKey: 'EnglishTest', label: 'Certificate Type', type: 'text' },
+        { key: 'EnglishLevel', jsonKey: 'EnglishLevel', label: 'Score/Level', type: 'text' },
+        { key: 'SubBand', jsonKey: 'SubBand', label: 'Score Detail (L/R/W/S)', type: 'text' },
+        { key: 'EngTestDate', jsonKey: 'EngTestDate', label: 'Test Date', type: 'date' },
+        { key: 'TRFNo', jsonKey: 'TRFNo', label: 'TRF Number', type: 'text' },
+        { key: 'SubmissionDate', jsonKey: 'SubmissionDate', label: 'Submission Date', type: 'date' },
+      ],
+    },
+    {
+      key: 'docs',
+      label: 'Documents',
+      groupJsonPath: 'Docs',
+      fields: [
+        { key: 'NatID', jsonKey: 'NatID', label: 'National ID (submitted)', type: 'boolean' },
+        { key: 'Photo', jsonKey: 'Photo', label: 'ID Photo', type: 'boolean' },
+        { key: 'Health', jsonKey: 'Health', label: 'Health Certificate', type: 'boolean' },
+        { key: 'Resume', jsonKey: 'Resume', label: 'CV/Resume', type: 'boolean' },
+        { key: 'EngCert', jsonKey: 'EngCert', label: 'English Certificate', type: 'boolean' },
+        { key: 'Application', jsonKey: 'Application', label: 'Application Form', type: 'boolean' },
+        { key: 'UnderGradEng', jsonKey: 'UnderGradEng', label: 'Undergrad Degree (English)', type: 'boolean' },
+        { key: 'UnderGradVie', jsonKey: 'UnderGradVie', label: 'Undergrad Degree (Vietnamese)', type: 'boolean' },
+        { key: 'TranscriptEng', jsonKey: 'TranscriptEng', label: 'Transcript (English)', type: 'boolean' },
+        { key: 'TranscriptVie', jsonKey: 'TranscriptVie', label: 'Transcript (Vietnamese)', type: 'boolean' },
+      ],
+    },
+    {
+      key: 'preMba',
+      label: 'Pre-MBA Supplementary Courses',
+      groupJsonPath: 'PreMBA',
+      fields: [
+        { key: 'PoA', jsonKey: 'PoA', label: 'Principles of Accounting', type: 'boolean' },
+        { key: 'PoB', jsonKey: 'PoB', label: 'Principles of Business', type: 'boolean' },
+        { key: 'PoE', jsonKey: 'PoE', label: 'Principles of Economics', type: 'boolean' },
+        { key: 'PoF', jsonKey: 'PoF', label: 'Principles of Finance', type: 'boolean' },
+        { key: 'PoM', jsonKey: 'PoM', label: 'Principles of Management', type: 'boolean' },
+      ],
+    },
+    {
+      key: 'exemption',
+      label: 'Course Exemptions',
+      groupJsonPath: 'Exemption',
+      fields: [
+        { key: 'CPM', jsonKey: 'CPM', label: 'CPM', type: 'boolean' },
+        { key: 'ECO', jsonKey: 'ECO', label: 'ECO', type: 'boolean' },
+        { key: 'IBE', jsonKey: 'IBE', label: 'IBE', type: 'boolean' },
+        { key: 'MIS', jsonKey: 'MIS', label: 'MIS', type: 'boolean' },
+        { key: 'SMM', jsonKey: 'SMM', label: 'SMM', type: 'boolean' },
+        { key: 'FRDM', jsonKey: 'FRDM', label: 'FRDM', type: 'boolean' },
+      ],
+    },
+    {
+      key: 'scholarship',
+      label: 'Scholarship Registration',
+      groupJsonPath: 'RegForScholarship',
+      fields: [
+        { key: 'IsbAlumni', jsonKey: 'ISB Alumni', label: 'ISB Alumni', type: 'boolean' },
+        { key: 'UehAlumni', jsonKey: 'UEH Alumni', label: 'UEH Alumni', type: 'boolean' },
+        { key: 'ExcellentGraduate', jsonKey: 'Excellent Graduate', label: 'Excellent Graduate', type: 'boolean' },
+        { key: 'EnglishScholarship', jsonKey: 'English Scholarship', label: 'English Scholarship', type: 'boolean' },
+      ],
+    },
+  ],
+}
+
+// Đọc giá trị 1 field từ obj_json của 1 sinh viên, theo định nghĩa group/field ở trên.
+export function getStudentFieldValue(objJson, group, field) {
+  const base = group.groupJsonPath ? objJson?.[group.groupJsonPath] : objJson
+  return base?.[field.jsonKey]
+}
+
+// Ghi giá trị 1 field NGƯỢC LẠI vào obj_json (dùng cho form Add/Edit) — sửa
+// trực tiếp lên objJson truyền vào (mutate in place), tự tạo group con nếu
+// obj_json chưa có group đó (trường hợp sinh viên mới, obj_json rỗng).
+export function setStudentFieldValue(objJson, group, field, value) {
+  if (!group.groupJsonPath) {
+    objJson[field.jsonKey] = value
+    return
+  }
+  if (!objJson[group.groupJsonPath]) objJson[group.groupJsonPath] = {}
+  objJson[group.groupJsonPath][field.jsonKey] = value
+}
