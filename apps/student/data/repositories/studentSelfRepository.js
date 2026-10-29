@@ -11,4 +11,41 @@ export const studentSelfRepository = {
   async updateMyProfile(changes) {
     return await $fetch('/api/student/profile', { method: 'PATCH', body: { changes } })
   },
+
+  // Trạng thái upload: { [docKey]: { Uploaded, FileName } }
+  async getMyDocuments() {
+    const res = await $fetch('/api/student/documents')
+    return res?.documents ?? {}
+  },
+
+  // Bước 1: xin phiên upload. Trả { uploadUrl, fileName, replace }
+  async startDocumentUpload({ docKey, mimeType, size }) {
+    return await $fetch('/api/student/documents/start', { method: 'POST', body: { docKey, mimeType, size } })
+  },
+
+  // Bước 2: báo đã upload xong để server kiểm tra và ghi nhận. Trả { documents }
+  async completeDocumentUpload({ docKey, fileId }) {
+    return await $fetch('/api/student/documents/complete', { method: 'POST', body: { docKey, fileId } })
+  },
+
+  // ── Đăng ký khóa học ──────────────────────────────────────────────────────
+  // { today, requiredCount, courses: [{ id, courseName, subject, startDate, endDate, status, enrolled, sessionCount }] }
+  async getEnrollment() {
+    return await $fetch('/api/student/enrollment')
+  },
+
+  async enroll(courseId) {
+    return await $fetch('/api/student/enrollment', { method: 'POST', body: { courseId } })
+  },
+
+  // Toàn bộ lịch của một khóa đang đăng ký: { course, sessions }
+  async getCourseSchedule(courseId) {
+    return await $fetch('/api/student/enrollment/schedule', { query: { courseId } })
+  },
+
+  // ── Lịch học ──────────────────────────────────────────────────────────────
+  // { from, to, sessions } trong khoảng [from, from + days - 1]
+  async getSchedule({ from, days }) {
+    return await $fetch('/api/student/schedule', { query: { from, days } })
+  },
 }

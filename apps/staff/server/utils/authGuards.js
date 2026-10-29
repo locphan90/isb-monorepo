@@ -9,6 +9,7 @@ export const escapeLike = (s) => s.replace(/[\\%_]/g, '\\$&')
 
 // Chỉ user admin còn hoạt động trong tbl_misc, có quyền menu (và nút nếu truyền buttonKey)
 // theo cấu trúc PERMISSIONS: { [menuKey]: { menu: true, buttons: { [btnKey]: true } } }
+// Trả về { email, domains }: domains = các domain của user trong tbl_misc (obj_json.Domain, cách nhau bằng dấu phẩy)
 export const requireAdminAccess = async (event, menuKey, buttonKey = null) => {
   const { user } = await requireUserSession(event)
   const email = user?.email?.trim()
@@ -30,10 +31,38 @@ export const requireAdminAccess = async (event, menuKey, buttonKey = null) => {
   }
   if (!data) throw createError({ statusCode: 403, statusMessage: 'FORBIDDEN' })
 
-  if (SUPER_ADMIN_RANKS.includes(data.user_role?.Rank)) return { email }
+  const domains = String(data.user_role?.Domain || '').split(',').map((d) => d.trim()).filter(Boolean)
+
+  if (SUPER_ADMIN_RANKS.includes(data.user_role?.Rank)) return { email, domains }
 
   const perm = data.user_right?.PERMISSIONS?.[menuKey]
   const allowed = perm?.menu === true && (!buttonKey || perm?.buttons?.[buttonKey] === true)
   if (!allowed) throw createError({ statusCode: 403, statusMessage: 'FORBIDDEN' })
+  return { email, domains }
+}
+
+// Bất kỳ nhân viên còn hoạt động trong tbl_misc (không cần quyền menu cụ thể).
+// Dùng cho API tiện ích mọi trang đều gọi: gửi email, thông báo Chat, upload...
+// Chặn người chưa đăng nhập, tài khoản sinh viên và tài khoản nhân viên đã bị khoá/xoá.
+export const requireStaffSession = async (event) => {
+  const { user } = await requireUserSession(event)
+  const email = user?.email?.trim()
+  if (!email || user?.role === 'student') {
+    throw createError({ statusCode: 403, statusMessage: 'FORBIDDEN' })
+  }
+
+  const { data, error } = await useSupabaseAdmin(event)
+    .from('tbl_misc')
+    .select('val')
+    .eq('cat', 'USERS')
+    .or('i_status.is.null,i_status.eq.0')
+    .ilike('val', escapeLike(email))
+    .maybeSingle()
+
+  if (error) {
+    console.error('[Guard] tbl_misc query failed:', error.message)
+    throw createError({ statusCode: 500, statusMessage: 'DB_ERROR' })
+  }
+  if (!data) throw createError({ statusCode: 403, statusMessage: 'FORBIDDEN' })
   return { email }
 }

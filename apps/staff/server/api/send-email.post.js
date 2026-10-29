@@ -1,10 +1,21 @@
 
 import nodemailer from 'nodemailer'
 
+// Chỉ cho gửi từ các tài khoản này; mật khẩu ứng dụng tương ứng nằm trong biến môi trường trên server
+const SENDERS = {
+  'system@westernsydney.edu.vn': 'MAIL_PSW_FALLBACK',
+  'wsuprogram@westernsydney.edu.vn': 'MAIL_PSW_WSUPRG',
+}
+
 export default defineEventHandler(async (event) => {
+  await requireStaffSession(event)
+
   const body = await readBody(event)
   const frmAccount = body.from || 'system@westernsydney.edu.vn'
-  const appPSW = frmAccount.includes('system') ? process.env.MAIL_PSW_FALLBACK : process.env.MAIL_PSW_WSUPRG
+  const appPSW = process.env[SENDERS[frmAccount]]
+  if (!SENDERS[frmAccount] || !appPSW) {
+    throw createError({ statusCode: 400, statusMessage: 'INVALID_SENDER' })
+  }
 
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -37,7 +48,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const mailOptions = {
-    from: `${body.alias} <${frmAccount}`,
+    from: `${body.alias} <${frmAccount}>`,
     to: body.to,
     cc: body.cc ? body.cc : undefined,
     subject: body.subject,

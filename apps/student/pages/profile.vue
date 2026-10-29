@@ -1,18 +1,18 @@
 <!--
   apps/student/pages/profile.vue
   Trang sinh viên sau khi đăng nhập Google, gồm 3 phần (style theo StudentProfileDetail.vue):
-    1. Thông tin chỉ xem  2. Import tài liệu (5 nút, chưa có chức năng)  3. Thông tin được phép sửa
+    1. Thông tin chỉ xem  2. Import tài liệu (5 nút upload lên Google Drive)  3. Thông tin được phép sửa
   Trường nào hiện ở phần 1 / phần 3 do admin cấu hình ở System > Student Self-Edit (bên app staff).
 -->
 <script setup>
-import { STUDENT_IMPORT_ITEMS } from '#core/data/schemas/studentSelfEdit'
+import { STUDENT_IMPORT_ITEMS, STUDENT_DOC_ACCEPT, STUDENT_DOC_MAX_MB } from '#core/data/schemas/studentSelfEdit'
 import { displayName, formatValue, selectItems } from '#core/data/transformers/studentSelfEdit'
 
 // Chặn truy cập đã làm ở middleware/auth.global.ts
-definePageMeta({ layout: 'student' })
+definePageMeta({ layout: 'student', title: 'Profile' })
 
 const {
-  loading, saving, notRegistered, student, form, errors, fields, groupBlocks, hasChanges, notify, load, submit, signOut,
+  loading, saving, notRegistered, student, form, errors, fields, groupBlocks, hasChanges, load, submit, signOut,
 } = useStudentSelfProfile()
 
 // Phần 1: Student ID (nếu có) + các trường admin cho xem
@@ -29,14 +29,47 @@ const infoItems = computed(() => {
 
 const inputType = (type) => (type === 'date' ? 'date' : type === 'number' || type === 'currency' ? 'number' : 'text')
 
-// Phần 2: chưa có chức năng, nối vào đây khi có thông tin
-const onImport = (item) => notify(`Import for ${item.label} is not available yet.`, 'warning')
+// Phần 2: upload tài liệu. Loại nào đã upload thì nút xanh lá và hỏi lại trước khi upload đè.
+const { uploadingKey, isUploaded, fileNameOf, load: loadDocuments, upload } = useStudentDocuments()
 
-onMounted(load)
+const fileInput = ref(null)
+const pendingItem = ref(null) // loại tài liệu đang chờ chọn file
+const confirmOpen = ref(false) // hỏi "upload lại?" khi loại này đã upload
+
+const openPicker = () => fileInput.value?.click()
+
+const onImport = (item) => {
+  pendingItem.value = item
+  if (isUploaded(item.key)) {
+    confirmOpen.value = true
+    return
+  }
+  openPicker()
+}
+const confirmReplace = () => {
+  confirmOpen.value = false
+  openPicker()
+}
+const cancelReplace = () => {
+  confirmOpen.value = false
+  pendingItem.value = null
+}
+const onFileChosen = async (event) => {
+  const file = event.target.files?.[0]
+  event.target.value = '' // cho phép chọn lại đúng file đó lần sau
+  const item = pendingItem.value
+  pendingItem.value = null
+  if (file && item) await upload(item, file)
+}
+
+onMounted(async () => {
+  await load()
+  if (student.value) await loadDocuments()
+})
 </script>
 
 <template>
-  <div class="student-detail">
+  <div class="student-detail native-fields">
     <p v-if="loading && !student" class="loading">Loading...</p>
 
     <!-- Phiên đăng nhập hợp lệ nhưng không còn khớp sinh viên nào -->
@@ -81,12 +114,39 @@ onMounted(load)
       <div class="detail-section">
         <h3>Import Documents</h3>
         <div class="import-row">
-          <v-btn v-for="item in STUDENT_IMPORT_ITEMS" :key="item.key" variant="outlined" @click="onImport(item)">
-            <AppIcon :name="item.icon" :size="18" class="mr-1" />
-            {{ item.label }}
-          </v-btn>
+          <div v-for="item in STUDENT_IMPORT_ITEMS" :key="item.key" class="import-item">
+            <v-btn
+              :color="isUploaded(item.key) ? 'success' : undefined"
+              :variant="isUploaded(item.key) ? 'flat' : 'outlined'"
+              :loading="uploadingKey === item.key"
+              :disabled="!!uploadingKey && uploadingKey !== item.key"
+              @click="onImport(item)"
+            >
+              <AppIcon :name="isUploaded(item.key) ? 'mdiCheckCircleOutline' : item.icon" :size="18" class="mr-1" />
+              {{ item.label }}
+            </v-btn>
+            <span v-if="isUploaded(item.key)" class="import-file">{{ fileNameOf(item.key) }}</span>
+          </div>
         </div>
+        <p class="import-hint">PDF, JPG or PNG, up to {{ STUDENT_DOC_MAX_MB }} MB each. Uploading again replaces the previous file.</p>
+        <input ref="fileInput" type="file" :accept="STUDENT_DOC_ACCEPT" hidden @change="onFileChosen" />
       </div>
+
+      <v-dialog v-model="confirmOpen" max-width="440">
+        <v-card>
+          <v-card-title>Upload again?</v-card-title>
+          <v-card-text>
+            You have already uploaded <strong>{{ pendingItem?.label }}</strong>
+            <template v-if="pendingItem"> ({{ fileNameOf(pendingItem.key) }})</template>.
+            Do you want to upload it again? The previous file will be replaced.
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn variant="text" @click="cancelReplace">No</v-btn>
+            <v-btn color="primary" @click="confirmReplace">Yes, upload again</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
 
       <!-- 3. Thông tin được phép sửa -->
       <div class="detail-section">
@@ -168,7 +228,10 @@ onMounted(load)
 .field-label { font-size: 0.75rem; color: #94a3b8; }
 .field-value { font-size: 0.92rem; color: #1e293b; }
 
-.import-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.import-row { display: flex; gap: 12px 8px; flex-wrap: wrap; align-items: flex-start; }
+.import-item { display: flex; flex-direction: column; gap: 4px; }
+.import-file { font-size: 0.75rem; color: #64748b; word-break: break-all; max-width: 220px; }
+.import-hint { margin: 10px 0 0; font-size: 0.78rem; color: #94a3b8; }
 
 .edit-grid {
   display: grid;

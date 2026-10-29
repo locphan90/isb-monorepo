@@ -1,22 +1,16 @@
-import axios from 'axios'
 
+// Gửi thông báo vào Google Chat của domain đang chọn. Webhook nằm ở server (/api/notify-chat), trình duyệt chỉ gửi tên domain + nội dung.
 export async function notifyGChat(msg) {
   try {
     const userStore = useUserStore()
-    const gChatId = userStore.user?.domainInfo?.gChatId
-
-    if (!gChatId) {
-      console.warn('No Google Chat webhook ID found for current domain.')
+    const domain = userStore.user?.domainInfo?.domain
+    if (!domain) {
+      console.warn('No domain selected for the current user.')
       return
     }
-
-    const fullUrl = gChatId.startsWith('http')
-      ? gChatId
-      : `https://chat.googleapis.com/v1/spaces/${gChatId}`
-
-    await axios.post(fullUrl, { text: msg })
+    await $fetch('/api/notify-chat', { method: 'POST', body: { domain, message: msg } })
   } catch (err) {
-    console.error('Error sending message:', err.response?.data || err.message)
+    console.error('Error sending message:', err?.data?.statusMessage || err.message)
   }
 }
 

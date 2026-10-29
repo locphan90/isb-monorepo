@@ -30,6 +30,10 @@ const RPC_ERROR_STATUS = {
   INVALID_VALUE: 400,
   KEY_LOCKED: 400,
   FORBIDDEN: 403,
+  SESSION_NOT_FOUND: 404,
+  COURSE_NOT_FOUND: 404,
+  DUPLICATE_SESSION: 409,
+  LECTURER_NOT_FOUND: 404,
 }
 
 // Gọi RPC; lỗi nghiệp vụ trả về đúng mã (client dịch ra câu thông báo), lỗi khác chỉ log phía server

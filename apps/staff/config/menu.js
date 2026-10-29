@@ -7,6 +7,16 @@ export const menuItems = [
     children: [
       { key: 'user-manager', label: 'User Manager', icon: 'mdiAccountMultiple', path: '/System/User-Manager' },
       { key: 'test-page', label: 'Test', icon: 'mdiHeadQuestion', path: '/System/Test-Page' },
+      // { key: 'student-folder-test', label: 'Student Folder Test', icon: 'mdiFolderPlus', path: '/System/Student-Folder-Test' },
+    ]
+  },
+  {
+    // Gom các trang cấu hình quyền truy cập/hiển thị dữ liệu. Giữ nguyên key và path của từng mục
+    // để quyền đã cấp trong User Manager và đường dẫn trang không bị ảnh hưởng.
+    key: 'access-management',
+    label: 'Access management',
+    icon: 'mdiShieldAccount',
+    children: [
       {
         key: 'system-subjects',
         label: 'Required Subjects',
@@ -20,7 +30,7 @@ export const menuItems = [
         path: '/System/Student-Display',
       },
       { key: 'system-student-self-edit', label: 'Student Self-Edit', icon: 'mdiAccountEdit', path: '/System/Student-Self-Edit' },
-    ]
+    ],
   },
   {
     key: 'academic-admin',
@@ -31,6 +41,7 @@ export const menuItems = [
       { key: 'eap-specific', label: 'EAP Specific', icon: 'mdiTranslate', path: '/AcademicAdmin/EAP-Specific', domain: 'EAP' },
       { key: 'isp-specific', label: 'ISP Specific', icon: 'mdiWeb', path: '/AcademicAdmin/ISP-Specific', domain: 'ISP' },
       { key: 'academic-course-create', label: 'Create Course', icon: 'mdiBookPlus', path: '/AcademicAdmin/Course-Create' },
+      { key: 'academic-course-schedule', label: 'Course Schedule', icon: 'mdiCalendarMonth', path: '/AcademicAdmin/Course-Schedule' },
       { key: 'academic-lecturer-profile', label: 'Lecturer Profile', icon: 'mdiAccountTie', path: '/AcademicAdmin/Lecturer-Profile' }
     ]
   },
@@ -45,14 +56,14 @@ export const menuItems = [
         label: 'Student List',
         icon: 'mdiAccountSchool',
         path: '/Registrar/Student-List',
-        studentList: true, // menu có trang danh sách sinh viên -> hiện trong System > Student Data Display
+        studentList: true, // menu có trang danh sách sinh viên -> hiện trong Access management > Student Data Display
       },
-      {
-        key: 'registrar-student-add',
-        label: 'Add Student',
-        icon: 'mdiAccountPlus',
-        path: '/Registrar/Student-Add',
-      },
+      // {
+      //   key: 'registrar-student-add',
+      //   label: 'Add Student',
+      //   icon: 'mdiAccountPlus',
+      //   path: '/Registrar/Student-Add',
+      // },
     ],
   },
   { key: 'student-advisor', label: 'Student Advisor', icon: 'mdiAccountMultiple', path: '/' },
@@ -66,7 +77,7 @@ export const menuItems = [
         label: 'Student List',
         icon: 'mdiAccountCash',
         path: '/Accounting/Student-List',
-        studentList: true, // menu có trang danh sách sinh viên -> hiện trong System > Student Data Display
+        studentList: true, // menu có trang danh sách sinh viên -> hiện trong Access management > Student Data Display
       },
     ],
   },

@@ -50,12 +50,12 @@ export const toCourseRow = (f, subjName, userEmail) => {
     course_name: buildCourseName(f),
     subject: subjName,
     coef: Number(f.coef),
-    startdate: f.startdate,
-    enddate: f.enddate,
+    start_date: f.startdate,
+    end_date: f.enddate,
     obj_lecturer: f.lecturers.filter(l => l.lecturer?.email).map(toCourseLecturerJson),
     i_status: COURSE_STATUS.ACTIVE,
-    create_at: now,
-    create_by: userEmail,
-    update_at: now
+    created_at: now,
+    created_by: userEmail,
+    updated_at: now
   }
 }

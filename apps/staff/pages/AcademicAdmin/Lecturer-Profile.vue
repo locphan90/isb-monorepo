@@ -21,7 +21,7 @@
         <v-col cols="6" md="3"><v-text-field v-model="form.IDNo" label="ID No" /></v-col>
         <v-col cols="6" md="3"><v-text-field v-model="form.DOI" type="date" label="DOI" /></v-col>
         <v-col cols="12" md="6">
-          <!-- Email là khóa (val trong tbl_misc) nên khóa lại khi đang sửa -->
+          <!-- Email là khóa của tbl_lecturer nên khóa lại khi đang sửa -->
           <v-text-field v-model="form.Email" label="Email" :readonly="!!selectedId" />
         </v-col>
 
@@ -72,7 +72,6 @@ definePageMeta({ title: 'Lecturer Profile — Academic Admin' })
 
 const { fetchLecturers, fetchLecturer, saveLecturer } = useLecturerData()
 const snackbar = useSnackbarStore()
-const { user } = storeToRefs(useUserStore())
 
 const form = reactive(emptyLecturerProfile())
 const lecturerOptions = ref([])
@@ -105,7 +104,7 @@ watch(selectedId, async (id) => {
 async function save() {
   saving.value = true
   try {
-    await saveLecturer({ ...form }, selectedId.value, user.value.email)
+    await saveLecturer({ ...form }, selectedId.value) // người lưu lấy từ session ở server
     snackbar.trigger({ message: 'Lecturer saved.', color: 'success' })
     clearForm()
     await loadOptions()

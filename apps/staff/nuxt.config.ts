@@ -5,6 +5,12 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
+  // Component của app staff: tắt tiền tố theo thư mục con (components/Foo/Bar.vue vẫn là <Bar>, không phải <FooBar>).
+  // Cấu hình tương tự ở packages/core chỉ áp dụng cho components của core.
+  components: [
+    { path: '~/components', pathPrefix: false },
+  ],
+
   runtimeConfig: {
     geminiApiKey: process.env.GEMINI_API_KEY,
     public: {

@@ -1,5 +1,5 @@
 // Khai báo cấu trúc bảng tbl_course (chỉ khai báo, không có logic)
-// Cột: course_name, subject, coef, startdate, enddate, obj_lecturer, i_status, create_at, create_by, update_at
+// Cột: id, course_name, subject, coef, start_date, end_date, obj_lecturer, i_status, created_by, created_at, updated_at
 
 export const COURSE_TABLE = 'tbl_course'
 export const COURSE_STATUS = { ACTIVE: 0, DELETED: 1 } // xóa luôn là soft delete (i_status = 1)

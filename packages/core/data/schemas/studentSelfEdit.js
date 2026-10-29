@@ -16,14 +16,26 @@ export const FIELD_ACCESS = Object.freeze({
 // Admin chọn từng trường ở trang Setting. PHẢI khớp student_self_view_groups() trong file SQL 20261015.
 export const STUDENT_VIEW_GROUP_PATHS = Object.freeze(['objEng', 'Docs', 'PreMBA', 'Exemption', 'RegForScholarship'])
 
-// 5 nút import ở trang sinh viên (chưa có chức năng, nối sau)
+// 5 nút upload tài liệu ở trang sinh viên. `key` cũng là tên trường trong obj_json.UploadDocument
+// (PascalCase, khớp quy ước của obj_json) và nằm trong tên file trên Drive: <MSSV>_<key>.<đuôi>
 export const STUDENT_IMPORT_ITEMS = Object.freeze([
-  { key: 'national-id', label: 'National ID (CCCD)', icon: 'mdiCardAccountDetailsOutline' },
-  { key: 'english-certificate', label: 'English certificate', icon: 'mdiTranslate' },
-  { key: 'undergrad-degree', label: 'Undergraduate degree', icon: 'mdiSchoolOutline' },
-  { key: 'transcript', label: 'Transcript', icon: 'mdiFileDocumentOutline' },
-  { key: 'tuition-invoice', label: 'Tuition invoice', icon: 'mdiReceiptTextOutline' },
+  { key: 'CCCD', label: 'National ID (CCCD)', icon: 'mdiCardAccountDetailsOutline' },
+  { key: 'EnglishCertificate', label: 'English certificate', icon: 'mdiTranslate' },
+  { key: 'UndergradDegree', label: 'Undergraduate degree', icon: 'mdiSchoolOutline' },
+  { key: 'Transcript', label: 'Transcript', icon: 'mdiFileDocumentOutline' },
+  { key: 'TuitionInvoice', label: 'Tuition invoice', icon: 'mdiReceiptTextOutline' },
 ])
+
+// Giới hạn file upload (kiểm tra ở trình duyệt để báo sớm, và kiểm tra lại ở server)
+export const STUDENT_DOC_MAX_MB = 10
+export const STUDENT_DOC_MAX_BYTES = STUDENT_DOC_MAX_MB * 1024 * 1024
+// mime -> đuôi file dùng khi đặt lại tên
+export const STUDENT_DOC_TYPES = Object.freeze({
+  'application/pdf': 'pdf',
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+})
+export const STUDENT_DOC_ACCEPT = '.pdf,.jpg,.jpeg,.png'
 
 // FullName nằm trong objProfile như các trường khác và cấu hình như một trường bình thường.
 // Tên luôn hiện ở đầu trang sinh viên, nên với FullName chỉ cần chọn Editable hay không.

@@ -23,6 +23,10 @@ export default defineOAuthGoogleEventHandler({
         return sendRedirect(event, '/login?error=not_registered')
       }
 
+      // Tạo/tìm folder Drive của sinh viên ngay khi đăng nhập (lỗi chỉ ghi log, không chặn đăng nhập).
+      // ID nằm trong session đã ký nên các API upload dùng lại mà không phải tạo lại.
+      const studentFolderId = await prepareStudentFolder(event, email)
+
       await setUserSession(event, {
         user: {
           email,
@@ -30,6 +34,7 @@ export default defineOAuthGoogleEventHandler({
           avatar: user.picture,
           role: 'student',
           mssv: data.mssv,
+          ...(studentFolderId ? { studentFolderId } : {}),
         },
       })
       return sendRedirect(event, '/profile')

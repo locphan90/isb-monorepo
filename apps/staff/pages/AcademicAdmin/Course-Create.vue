@@ -94,6 +94,7 @@ const addLecturer = () => form.lecturers.push(emptyCourseLecturer())
 const removeLecturer = (i) => form.lecturers.splice(i, 1)
 const clearForm = () => Object.assign(form, emptyCourseForm())
 
+
 // Môn học chỉ lấy theo domain đang chọn; đổi domain thì tải lại và bỏ môn đang chọn
 watch(() => user.value.domain, async (domain) => {
   form.subj_code = ''

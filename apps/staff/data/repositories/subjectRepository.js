@@ -1,7 +1,10 @@
 // Danh sách "môn cần phải học" do người dùng tự nhập ở System > Required
 // Subjects — lưu THÀNH 1 DÒNG DUY NHẤT trong tbl_misc (không phải 1 dòng/
 // môn), arr_json chứa cả mảng:
-//   cat='SUBJECTS', val='REQUIRED_LIST', arr_json={ subjects: [{code, name}] }
+//   cat='SUBJECTS', val='REQUIRED_LIST',
+//   arr_json={ subjects: [{ code, name, prg, major, domain }] }
+//   prg: 'PSO' | 'Talent'; major: 'ANY'; domain: domain của người nhập
+//   (chứa môn của MỌI domain trong cùng 1 dòng — lọc theo domain ở composable)
 //
 // Danh sách này sau đó được đọc lại ở form Add/Edit sinh viên
 // (components/StudentProfile/StudentProfileForm.vue) để vẽ checkbox chọn

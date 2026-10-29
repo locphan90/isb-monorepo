@@ -1,55 +1,18 @@
-// Nơi DUY NHẤT gọi Supabase cho hồ sơ giảng viên (tbl_misc, cat = 'LECTURER')
-import { useSupabase } from '#imports'
-import { LECTURER_CAT, LECTURER_STATUS } from '../schemas/lecturerSchema'
+// Repository: nơi DUY NHẤT gọi API hồ sơ giảng viên (bảng tbl_lecturer).
+// Trình duyệt không chạm bảng: server kiểm tra quyền rồi gọi hàm SQL bằng service role.
+export const lecturerRepository = {
+  // Giảng viên đang hoạt động, chỉ phần nhẹ (id, email, full_name, type) -> dùng cho ô chọn
+  async list() {
+    return await $fetch('/api/lecturer')
+  },
 
-export async function fetchActiveLecturers() {
-  const supabase = useSupabase()
-  const { data, error } = await supabase
-    .from('tbl_misc')
-    .select('id, val, obj_json')
-    .eq('cat', LECTURER_CAT)
-    .eq('i_status', LECTURER_STATUS.ACTIVE)
-  if (error) throw error
-  return data || []
-}
+  // Hồ sơ đầy đủ một giảng viên (gồm dữ liệu nhạy cảm) -> { id, email, full_name, type, ..., obj_json }
+  async get(id) {
+    return await $fetch(`/api/lecturer/${id}`)
+  },
 
-export async function fetchLecturerById(id) {
-  const supabase = useSupabase()
-  const { data, error } = await supabase
-    .from('tbl_misc')
-    .select('id, val, obj_json')
-    .eq('id', id)
-    .eq('cat', LECTURER_CAT)
-    .maybeSingle()
-  if (error) throw error
-  return data
-}
-
-// Trùng email (kể cả bản ghi đã xóa mềm)
-export async function lecturerEmailExists(email) {
-  const supabase = useSupabase()
-  const { data, error } = await supabase
-    .from('tbl_misc')
-    .select('id')
-    .eq('cat', LECTURER_CAT)
-    .ilike('val', email)
-    .limit(1)
-  if (error) throw error
-  return (data || []).length > 0
-}
-
-export async function insertLecturer(row) {
-  const supabase = useSupabase()
-  const { error } = await supabase.from('tbl_misc').insert(row)
-  if (error) throw error
-}
-
-export async function updateLecturer(id, objJson, userEmail) {
-  const supabase = useSupabase()
-  const { error } = await supabase
-    .from('tbl_misc')
-    .update({ obj_json: objJson, last_user: userEmail })
-    .eq('id', id)
-    .eq('cat', LECTURER_CAT)
-  if (error) throw error
+  // payload: { id?, email, fullName, type, highestDegree, contractStart, contractEnd, objJson } -> { id }
+  async save(payload) {
+    return await $fetch('/api/lecturer/save', { method: 'POST', body: payload })
+  }
 }
