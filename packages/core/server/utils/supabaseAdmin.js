@@ -33,7 +33,13 @@ const RPC_ERROR_STATUS = {
   SESSION_NOT_FOUND: 404,
   COURSE_NOT_FOUND: 404,
   DUPLICATE_SESSION: 409,
-  LECTURER_NOT_FOUND: 404,
+  SUBJECT_NOT_FOUND: 404,
+  SUBJECT_DUPLICATED: 409,
+  RATE_NOT_FOUND: 404,
+  RATE_DUPLICATED: 409,
+  RATE_OVERLAP: 409,
+  COURSE_DUPLICATED: 409,
+  COURSE_NAME_EXHAUSTED: 409,
 }
 
 // Gọi RPC; lỗi nghiệp vụ trả về đúng mã (client dịch ra câu thông báo), lỗi khác chỉ log phía server

@@ -1,36 +1,18 @@
-// Hàm thuần: không đụng Vue / Supabase
-import { COURSE_STATUS } from '../schemas/courseSchema'
+// Hàm thuần cho form Create Course: không đụng Vue / Supabase
+// Quy tắc đặt tên, quý và kiểm tra dữ liệu nằm ở courseRules.js (dùng chung với server)
+import { validateCoursePayload } from './courseRules.js'
 
-// Quý học: Q + số quý + 2 số cuối của năm. Ví dụ quý 1 năm 2026 -> Q126
-export const buildQuarterCode = (quarter, year) => `Q${quarter}${String(year).slice(-2)}`
-
-// Tên lớp: bỏ khoảng trắng và dấu gạch dưới để không phá định dạng course_name
-export const cleanClassName = (v) => String(v || '').replace(/[\s_]/g, '')
-
-// course_name = subj_code + '_' + quý + '_' + lớp. Ví dụ: AB_Q126_T1
-export const buildCourseName = ({ subj_code, quarter, year, class_name }) => {
-  const cls = cleanClassName(class_name)
-  if (!subj_code || !quarter || !year || !cls) return ''
-  return `${subj_code}_${buildQuarterCode(quarter, year)}_${cls}`
-}
-
-// Dòng tbl_subject -> item cho ô chọn môn học
+// Dòng tbl_subject -> item cho ô chọn môn học.
+// value = mã môn (Course Schedule dùng để khớp khóa theo '<mã môn>_Q'); key = '<prg>|<mã môn>' vì cùng mã có thể ở nhiều program
 export const toSubjectOptions = (rows = []) =>
   rows.map(r => ({
+    key: `${r.prg || ''}|${r.subj_code}`,
     value: r.subj_code,
-    title: `${r.subj_code} - ${r.obj_json?.SubjName || ''}`,
-    subjName: r.obj_json?.SubjName || ''
+    prg: r.prg || '',
+    title: `${r.subj_code} - ${r.obj_json?.SubjName || ''}${r.prg ? ` (${r.prg})` : ''}`,
+    subjName: r.obj_json?.SubjName || '',
+    type: r.obj_json?.Type || ''
   }))
-
-// Kiểm tra form, trả về chuỗi lỗi (rỗng nếu hợp lệ)
-export const validateCourseForm = (f) => {
-  if (!f.subj_code) return 'Please select a subject.'
-  if (!cleanClassName(f.class_name)) return 'Please enter the class.'
-  if (!(Number(f.coef) > 0)) return 'Coefficient must be greater than 0.'
-  if (!f.startdate || !f.enddate) return 'Please select start date and end date.'
-  if (new Date(f.enddate) < new Date(f.startdate)) return 'End date must not be before start date.'
-  return ''
-}
 
 const num = (v) => Number(v) || 0
 
@@ -43,19 +25,33 @@ const toCourseLecturerJson = (l) => ({
   noofsection: num(l.noofsection)
 })
 
-// Form -> dòng insert vào tbl_course (bỏ các dòng chưa chọn giảng viên)
-export const toCourseRow = (f, subjName, userEmail) => {
-  const now = new Date().toISOString()
-  return {
-    course_name: buildCourseName(f),
-    subject: subjName,
-    coef: Number(f.coef),
-    start_date: f.startdate,
-    end_date: f.enddate,
-    obj_lecturer: f.lecturers.filter(l => l.lecturer?.email).map(toCourseLecturerJson),
-    i_status: COURSE_STATUS.ACTIVE,
-    created_at: now,
-    created_by: userEmail,
-    updated_at: now
-  }
+// Form + môn đã chọn -> dữ liệu gửi lên API (bỏ các dòng chưa chọn giảng viên). Domain do server xác nhận lại.
+export const toCreateCoursePayload = (f, subject, domain) => ({
+  domain,
+  subjCode: subject?.value || '',
+  prg: subject?.prg || '',
+  quarter: f.quarter,
+  coef: Number(f.coef),
+  lecturers: f.lecturers.filter(l => l.lecturer?.email).map(toCourseLecturerJson)
+})
+
+// Kiểm tra payload ở trình duyệt (server kiểm tra lại bằng cùng hàm), trả về chuỗi lỗi (rỗng nếu hợp lệ)
+export const validateCourseForm = (payload) => validateCoursePayload(payload)
+
+const ERROR_MESSAGES = {
+  COURSE_DUPLICATED: 'A course with this name already exists.',
+  COURSE_NAME_EXHAUSTED: 'Too many classes already use this name. Please contact the administrator.',
+  SUBJECT_NOT_FOUND: 'This subject is no longer available. Please reload the page.',
+  DOMAIN_NOT_ALLOWED: 'You do not have access to this domain.',
+  FORBIDDEN: 'You do not have permission to do this.',
+  INVALID_BODY: 'Invalid data.',
+  INVALID_VALUE: 'Invalid data.'
+}
+
+export const courseErrorMessage = (e) => {
+  const text = [e?.data?.statusMessage, e?.statusMessage, e?.message].filter(Boolean).join(' | ')
+  const code = Object.keys(ERROR_MESSAGES).find((c) => text.includes(c))
+  if (code) return ERROR_MESSAGES[code]
+  if (e?.data?.statusMessage && e.data.statusMessage.startsWith('INVALID:')) return e.data.statusMessage.slice(8).trim()
+  return 'Something went wrong. Please try again.'
 }

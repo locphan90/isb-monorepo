@@ -28,8 +28,11 @@
           </div>
         </div>
         <div class="course-actions">
-          <span class="badge-enrolled"><AppIcon name="mdiCheckCircleOutline" :size="16" /> Enrolled</span>
-          <v-btn v-if="c.sessionCount > 0" size="small" variant="outlined" @click="openSchedule(c)">View schedule</v-btn>
+          <span class="badge-enrolled">
+            <AppIcon name="mdiCheckCircleOutline" :size="16" /> Enrolled
+          </span>
+          <v-btn v-if="c.sessionCount > 0" size="small" variant="outlined" @click="openSchedule(c)">View
+            schedule</v-btn>
           <span v-else class="muted">Schedule not available yet</span>
         </div>
       </article>
@@ -54,7 +57,8 @@
     </section>
 
     <!-- Xác nhận đăng ký -->
-    <v-dialog :model-value="!!confirmCourse" max-width="460" @update:model-value="(v) => { if (!v) confirmCourse = null }">
+    <v-dialog :model-value="!!confirmCourse" max-width="460"
+      @update:model-value="(v) => { if (!v) confirmCourse = null }">
       <v-card v-if="confirmCourse">
         <v-card-title>Enroll in this course?</v-card-title>
         <v-card-text>
@@ -78,15 +82,21 @@
         <v-card-text>
           <v-progress-linear v-if="scheduleLoading" indeterminate />
           <template v-if="scheduleData">
-            <div class="course-sub sched-sub">{{ scheduleData.course.subject }} · {{ scheduleData.course.startDate }} → {{ scheduleData.course.endDate }}</div>
-            <ScheduleCalendar
-              :start="scheduleData.course.startDate"
-              :end="scheduleData.course.endDate"
-              :sessions="toCalendarSessions(scheduleData.sessions)"
-            />
-            <div class="table-wrap">
+            <div class="course-sub sched-sub">{{ scheduleData.course.subject }} · {{ scheduleData.course.startDate }} →
+              {{ scheduleData.course.endDate }}</div>
+            <ScheduleCalendar :start="scheduleData.course.startDate" :end="scheduleData.course.endDate"
+              :sessions="toCalendarSessions(scheduleData.sessions)" />
+            <!-- <div class="table-wrap">
               <table class="sessions">
-                <thead><tr><th>Date</th><th>Time</th><th>Room</th><th>Lecturer</th><th>Note</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Room</th>
+                    <th>Lecturer</th>
+                    <th>Note</th>
+                  </tr>
+                </thead>
                 <tbody>
                   <tr v-for="(s, i) in scheduleData.sessions" :key="i">
                     <td>{{ formatDateLong(s.date) }}</td>
@@ -97,7 +107,7 @@
                   </tr>
                 </tbody>
               </table>
-            </div>
+            </div> -->
           </template>
         </v-card-text>
         <v-card-actions>
@@ -148,32 +158,146 @@ onMounted(load)
 </script>
 
 <style scoped>
-.enroll-page { display: flex; flex-direction: column; gap: 16px; }
-.block { display: flex; flex-direction: column; gap: 10px; }
-.block h3 { margin: 4px 0 0; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; }
+.enroll-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.block h3 {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+}
 
 .course {
-  display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap;
-  background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px 16px;
 }
-.course-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.course-name { font-weight: 700; color: #0f172a; word-break: break-word; }
-.course-sub { font-size: 0.85rem; color: #475569; }
-.course-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 0.8rem; color: #64748b; margin-top: 2px; }
-.status { padding: 1px 8px; border-radius: 999px; font-weight: 600; font-size: 0.72rem; }
-.status.running { background: #dcfce7; color: #166534; }
-.status.upcoming { background: #dbeafe; color: #1e3a8a; }
 
-.course-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.badge-enrolled { display: inline-flex; align-items: center; gap: 4px; color: #166534; background: #dcfce7; border-radius: 999px; padding: 3px 10px; font-size: 0.82rem; font-weight: 600; }
-.muted { font-size: 0.82rem; color: #94a3b8; }
+.course-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
 
-.confirm-note { margin: 10px 0 0; font-size: 0.85rem; color: #64748b; }
-.sched-sub { margin-bottom: 8px; }
+.course-name {
+  font-weight: 700;
+  color: #0f172a;
+  word-break: break-word;
+}
 
-.table-wrap { overflow-x: auto; margin-top: 14px; }
-.sessions { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-.sessions th { text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; padding: 6px 8px; border-bottom: 1px solid #e2e8f0; }
-.sessions td { padding: 6px 8px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
-.note-cell { white-space: normal !important; color: #475569; }
+.course-sub {
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.course-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.status {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.72rem;
+}
+
+.status.running {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status.upcoming {
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.course-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.badge-enrolled {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #166534;
+  background: #dcfce7;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.muted {
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+.confirm-note {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.sched-sub {
+  margin-bottom: 8px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  margin-top: 14px;
+}
+
+.sessions {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.sessions th {
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #64748b;
+  padding: 6px 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.sessions td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #f1f5f9;
+  white-space: nowrap;
+}
+
+.note-cell {
+  white-space: normal !important;
+  color: #475569;
+}
 </style>

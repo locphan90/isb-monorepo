@@ -137,7 +137,7 @@
         </div>
 
         <!-- Danh sách các buổi -->
-        <div v-if="activeSessions.length" class="card">
+        <!-- <div v-if="activeSessions.length" class="card">
           <div class="card-title">All sessions</div>
           <div class="table-wrap">
             <table class="sessions">
@@ -153,7 +153,7 @@
               </tbody>
             </table>
           </div>
-        </div>
+        </div> -->
       </template>
     </section>
 
