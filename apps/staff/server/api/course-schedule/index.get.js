@@ -2,7 +2,7 @@
 import { COURSE_SCHEDULE_MENU_KEY } from '~/data/schemas/courseScheduleSchema'
 
 export default defineEventHandler(async (event) => {
-  const { domains } = await requireAdminAccess(event, COURSE_SCHEDULE_MENU_KEY)
+  const domains = await accessDomains(event, await requireAdminAccess(event, COURSE_SCHEDULE_MENU_KEY))
 
   const courseId = parseCourseId(getQuery(event).courseId)
   const course = await loadActiveCourse(event, courseId)

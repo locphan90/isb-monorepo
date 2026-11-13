@@ -3,7 +3,9 @@
 import { COURSE_SCHEDULE_MENU_KEY, COURSE_SCHEDULE_BUTTONS } from '~/data/schemas/courseScheduleSchema'
 
 export default defineEventHandler(async (event) => {
-  const { email, domains } = await requireAdminAccess(event, COURSE_SCHEDULE_MENU_KEY, COURSE_SCHEDULE_BUTTONS.SAVE)
+  const access = await requireAdminAccess(event, COURSE_SCHEDULE_MENU_KEY, COURSE_SCHEDULE_BUTTONS.SAVE)
+  const { email } = access
+  const domains = await accessDomains(event, access)
 
   const body = await readBody(event)
   const courseId = parseCourseId(body?.courseId)
