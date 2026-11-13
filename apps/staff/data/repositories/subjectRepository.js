@@ -10,50 +10,42 @@
 // (components/StudentProfile/StudentProfileForm.vue) để vẽ checkbox chọn
 // môn cho từng sinh viên.
 
-import { useSupabase } from '#imports'
+// Mọi thao tác đi qua server (/api/required-subjects): trình duyệt không còn đọc / ghi tbl_misc bằng anon key.
+// Đọc: nhân viên còn hoạt động; ghi: cần quyền menu System > Required Subjects. Server tự gộp môn của các domain.
 
-const TABLE = 'tbl_misc'
-const CAT = 'SUBJECTS'
-const VAL = 'REQUIRED_LIST'
-
-let _client = null
-function getClient() {
-  if (!_client) _client = useSupabase()
-  return _client
+const MESSAGES = {
+  FORBIDDEN: 'You do not have permission to do this.',
+  DOMAIN_NOT_ALLOWED: 'You do not have access to this domain.',
+  INVALID_BODY: 'Invalid data.',
 }
 
+// Lỗi từ server -> Error có câu thông báo ngắn cho giao diện
+const toError = (e) => {
+  const text = [e?.data?.statusMessage, e?.statusMessage].filter(Boolean).join(' | ')
+  const code = Object.keys(MESSAGES).find((c) => text.includes(c))
+  const err = e?.data?.statusMessage?.startsWith('INVALID:')
+    ? new Error(e.data.statusMessage.slice(8).trim())
+    : new Error(code ? MESSAGES[code] : 'Something went wrong. Please try again.')
+  err.unauthorized = e?.statusCode === 401 || e?.status === 401
+  return err
+}
+
+// => [{ code, name, prg, major, domain }] của MỌI domain
 export async function fetchRequiredSubjects() {
-  const { data, error } = await getClient()
-    .from(TABLE)
-    .select('id, arr_json')
-    .eq('cat', CAT)
-    .eq('val', VAL)
-    .maybeSingle()
-
-  if (error) throw error
-  return data?.arr_json?.subjects ?? []
+  try {
+    const res = await $fetch('/api/required-subjects')
+    return res?.subjects ?? []
+  } catch (e) {
+    throw toError(e)
+  }
 }
 
-export async function saveRequiredSubjects(subjects) {
-  const { data: existing, error: selectError } = await getClient()
-    .from(TABLE)
-    .select('id')
-    .eq('cat', CAT)
-    .eq('val', VAL)
-    .maybeSingle()
-
-  if (selectError) throw selectError
-
-  if (existing) {
-    const { error } = await getClient()
-      .from(TABLE)
-      .update({ arr_json: { subjects } })
-      .eq('id', existing.id)
-    if (error) throw error
-  } else {
-    const { error } = await getClient()
-      .from(TABLE)
-      .insert({ cat: CAT, val: VAL, arr_json: { subjects }, i_status: 0 })
-    if (error) throw error
+// Lưu danh sách môn của MỘT domain (list: [{ code, name, prg, major }]). => danh sách mới của MỌI domain (đã gộp ở server)
+export async function saveRequiredSubjects(list, domain) {
+  try {
+    const res = await $fetch('/api/required-subjects', { method: 'POST', body: { domain, subjects: list } })
+    return res?.subjects ?? []
+  } catch (e) {
+    throw toError(e)
   }
 }

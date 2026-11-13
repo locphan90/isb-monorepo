@@ -33,6 +33,7 @@ async function getToken() {
 
 // --- Main Nitro API Handler ---
 export default defineEventHandler(async (event) => {
+  await requireStaffSession(event) // chỉ nhân viên đang hoạt động đã đăng nhập (trước đây ai cũng gọi được)
   // 1. Parse query parameters from the request
   const body = await readBody(event);
   const student_code = body.student_code;

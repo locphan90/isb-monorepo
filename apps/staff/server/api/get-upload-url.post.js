@@ -1,6 +1,7 @@
 import { google } from 'googleapis'
 
 export default defineEventHandler(async (event) => {
+  await requireStaffSession(event) // chỉ nhân viên đang hoạt động đã đăng nhập (trước đây ai cũng gọi được)
   const body = await readBody(event)
   const { fileName, mimeType, folderID } = body
   const config = useRuntimeConfig()

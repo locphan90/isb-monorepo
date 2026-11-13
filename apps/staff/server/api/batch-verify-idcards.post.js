@@ -42,6 +42,7 @@ async function mapConcurrent(items, limit, fn) {
 }
 
 export default defineEventHandler(async (event) => {
+  await requireStaffSession(event) // chỉ nhân viên đang hoạt động đã đăng nhập (trước đây ai cũng gọi được)
   let mssvList = [];
 
   try {

@@ -4,6 +4,11 @@
 export const SUBJECT_MENU_KEY = 'academic-subject' // khớp key trong config/menu.js
 export const SUBJECT_BUTTONS = { SAVE: 'save', FEES: 'fees', DELETE: 'delete' }
 
+// Danh sách "môn cần phải học" (System > Required Subjects): 1 dòng tbl_misc, cat = 'SUBJECTS', val = 'REQUIRED_LIST'
+export const REQUIRED_SUBJECTS_MENU_KEY = 'system-subjects' // khớp key trong config/menu.js
+export const REQUIRED_SUBJECTS_MAX = 300
+export const REQUIRED_SUBJECT_TEXT_MAX = 200
+
 export const SUBJECT_TYPES = ['Academic', 'Executive', 'PRE-MBA', 'Case']
 export const SUBJECT_STAGES = [0, 1, 2, 3]
 

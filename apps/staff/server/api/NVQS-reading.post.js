@@ -31,6 +31,7 @@ const ai = new GoogleGenAI({
 });
 
 export default defineEventHandler(async (event) => {
+  await requireStaffSession(event) // chỉ nhân viên đang hoạt động đã đăng nhập (trước đây ai cũng gọi được)
   const formData = await readMultipartFormData(event);
   const file = formData?.find((item) => item.name === 'file');
 

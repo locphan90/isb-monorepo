@@ -1,7 +1,7 @@
 // Hàm thuần cho form môn học: không đụng Vue / Supabase (dùng cả ở trình duyệt và server)
 import {
   SUBJECT_TYPES, SUBJECT_STAGES, SUBJECT_CODE_MAX, SUBJECT_TEXT_MAX, SUBJECT_MAX_FEE_PERIODS, SUBJECT_MAX_AMOUNT,
-  FEE_QUARTER_OPTIONS_COUNT,
+  FEE_QUARTER_OPTIONS_COUNT, PROGRAMS_BY_DOMAIN,
 } from '../schemas/subjectSchema.js'
 
 const str = (v) => String(v ?? '').trim()
@@ -29,8 +29,9 @@ export const buildQuarterOptions = (today, count = FEE_QUARTER_OPTIONS_COUNT) =>
 // Mã môn đi vào course_name (<mã môn>_Q126_T1) nên không cho khoảng trắng và dấu gạch dưới
 const SUBJ_CODE_RE = /^[A-Za-z0-9.-]+$/
 
-// Kiểm tra form thêm môn, trả về chuỗi lỗi (rỗng nếu hợp lệ)
-export const validateSubjectForm = (f) => {
+// Kiểm tra form thêm môn, trả về chuỗi lỗi (rỗng nếu hợp lệ).
+// domain (không bắt buộc): domain đang chọn, để kiểm tra Program là tên program thật chứ không phải tên domain
+export const validateSubjectForm = (f, domain) => {
   const code = str(f.subjCode)
   if (!code) return 'Please enter the subject code.'
   if (code.length > SUBJECT_CODE_MAX || !SUBJ_CODE_RE.test(code)) {
@@ -43,6 +44,11 @@ export const validateSubjectForm = (f) => {
   const prg = str(f.prg)
   if (!prg) return 'Please enter the program.'
   if (prg.length > SUBJECT_CODE_MAX) return 'Program is too long.'
+  if (domain) {
+    const list = PROGRAMS_BY_DOMAIN[domain] || []
+    if (list.length && !list.includes(prg)) return `Program must be one of: ${list.join(', ')}.`
+    if (prg.toLowerCase() === String(domain).toLowerCase()) return 'Program must be the program name, not the domain.'
+  }
   return ''
 }
 

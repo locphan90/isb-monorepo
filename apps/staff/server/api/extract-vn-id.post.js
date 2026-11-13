@@ -172,6 +172,7 @@ const GEMINI_SCHEMA = {
 };
 
 export default defineEventHandler(async (event) => {
+  await requireStaffSession(event) // chỉ nhân viên đang hoạt động đã đăng nhập (trước đây ai cũng gọi được)
   const form = await readMultipartFormData(event);
   const files = (form || []).filter(
     (p) => p.data?.length && (p.filename || p.name === 'file' || p.name === 'files')

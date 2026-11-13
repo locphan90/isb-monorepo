@@ -1,56 +1,34 @@
-// server/routes/auth/google.get.js
-import { PostgrestClient } from '@supabase/postgrest-js'
+// server/routes/auth/google.js
+// Đăng nhập staff bằng Google. Chỉ email đang có trong tbl_misc (cat = 'USERS') và còn hoạt động mới được vào.
+// Tra cứu bằng service role (useSupabaseAdmin: thiếu khóa thì báo lỗi, KHÔNG fallback sang anon key như trước).
 export default defineOAuthGoogleEventHandler({
   config: {
     scope: ['email', 'profile'],
   },
   async onSuccess(event, { user }) {
-    const config = useRuntimeConfig(event)
-
-    const supabaseUrl =
-      config.public?.supabaseUrl ||
-      process.env.SUPABASE_URL ||
-      process.env.NUXT_PUBLIC_SUPABASE_URL
-
-    const supabaseKey =
-      config.supabaseServiceRoleKey ||
-      config.supabaseKey ||
-      config.public?.supabaseKey ||
-      process.env.SUPABASE_SERVICE_ROLE_KEY ||
-      process.env.SUPABASE_KEY ||
-      process.env.NUXT_PUBLIC_SUPABASE_KEY
-
-    if (!supabaseUrl || !supabaseKey) {
-      console.error('[Auth Error] Missing Supabase credentials in server environment.')
-      return sendRedirect(event, '/login?error=server_config_error')
-    }
-
     const cleanEmail = user.email?.trim()
 
     if (!cleanEmail) {
       return sendRedirect(event, '/login?error=no_email')
     }
+    // Google báo email chưa xác minh thì không cho vào (tài khoản Gmail luôn đã xác minh)
+    if (user.email_verified === false) {
+      return sendRedirect(event, '/login?error=not_authorized')
+    }
 
     try {
-      // Points directly to the PostgREST REST endpoint
-      const postgrest = new PostgrestClient(`${supabaseUrl}/rest/v1`, {
-        headers: {
-          apikey: supabaseKey,
-          Authorization: `Bearer ${supabaseKey}`,
-        },
-      })
-
-      const { data: dbUser, error } = await postgrest
+      const { data: dbUser, error } = await useSupabaseAdmin(event)
         .from('tbl_misc')
-        .select('user_role:obj_json, user_right:arr_json')
+        .select('val')
         .eq('cat', 'USERS')
-        .ilike('val', cleanEmail)
+        .or('i_status.is.null,i_status.eq.0') // user đã bị khóa / retire không đăng nhập được
+        .ilike('val', escapeLike(cleanEmail)) // escape _ và % để email không thành mẫu khớp rộng
         .maybeSingle()
 
       if (error) throw error
 
       if (!dbUser) {
-        console.warn(`[Auth Warning] Email ${cleanEmail} not found in database.`)
+        console.warn(`[Auth Warning] Email ${cleanEmail} not found or inactive.`)
         return sendRedirect(event, '/login?error=not_authorized')
       }
 
@@ -65,7 +43,8 @@ export default defineOAuthGoogleEventHandler({
       return sendRedirect(event, '/')
     } catch (err) {
       console.error('[Auth Error] Supabase query failed:', err?.message || err)
-      return sendRedirect(event, '/login?error=db_error')
+      const missingConfig = err?.statusMessage === 'SERVER_CONFIG_ERROR'
+      return sendRedirect(event, `/login?error=${missingConfig ? 'server_config_error' : 'db_error'}`)
     }
   },
   onError(event, error) {

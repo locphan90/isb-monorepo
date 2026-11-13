@@ -33,6 +33,7 @@ const GEMINI_MODEL = 'gemini-2.5-flash';
 const MAX_OUTPUT_TOKENS = 2048;
 
 export default defineEventHandler(async (event) => {
+  await requireStaffSession(event) // chỉ nhân viên đang hoạt động đã đăng nhập (trước đây ai cũng gọi được)
   const form = await readMultipartFormData(event);
   const file = form?.find((p) => p.name === 'file');
 

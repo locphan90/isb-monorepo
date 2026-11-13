@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) || {}
   const domain = await resolveSubjectDomain(event, email, body.domain)
 
-  const err = validateSubjectForm(body)
+  const err = validateSubjectForm(body, domain)
   if (err) throwInvalid(err)
   const { prg, subjCode, obj } = toSubjectPayload(body)
 

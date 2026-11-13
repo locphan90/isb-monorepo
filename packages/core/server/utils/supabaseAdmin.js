@@ -40,6 +40,12 @@ const RPC_ERROR_STATUS = {
   RATE_OVERLAP: 409,
   COURSE_DUPLICATED: 409,
   COURSE_NAME_EXHAUSTED: 409,
+  USER_DUPLICATED: 409,
+  USER_NOT_FOUND: 404,
+  CATALOG_FULL: 409,
+  LECTURER_NOT_FOUND: 404,
+  STUDENT_NOT_FOUND: 404,
+  STUDENT_DUPLICATED: 409,
 }
 
 // Gọi RPC; lỗi nghiệp vụ trả về đúng mã (client dịch ra câu thông báo), lỗi khác chỉ log phía server

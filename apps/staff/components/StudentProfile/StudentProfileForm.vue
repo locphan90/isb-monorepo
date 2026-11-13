@@ -16,7 +16,7 @@
 -->
 <template>
   <div class="profile-form">
-    <div v-for="g in studentProfileSchema.groups" :key="g.key" class="form-section">
+    <div v-for="g in visibleGroups" :key="g.key" class="form-section">
       <h4>{{ g.label }}</h4>
       <div class="field-grid">
         <div v-for="f in g.fields" :key="f.key" class="form-field">
@@ -80,7 +80,15 @@ import { getStudentFieldValue, setStudentFieldValue } from '~/data/transformers/
 
 const props = defineProps({
   modelValue: { type: Object, required: true },
+  // Trang sửa sinh viên của một phòng ban: chỉ hiện các nhóm dữ liệu phòng ban đó được phép (server cũng chỉ nhận sửa các nhóm này).
+  // Không truyền (trang Add Student): hiện tất cả nhóm.
+  menuKey: { type: String, default: '' },
 })
+
+const { canField } = usePermission()
+const visibleGroups = computed(() =>
+  props.menuKey ? studentProfileSchema.groups.filter((g) => canField(props.menuKey, g.key)) : studentProfileSchema.groups
+)
 
 function update(group, field, value) {
   setStudentFieldValue(props.modelValue, group, field, value)

@@ -17,7 +17,7 @@ export const useSubjectAdmin = () => {
     fetchSubjects: (domain) => wrap(async () => (await repo.list(domain)).subjects.map(toSubjectRow)),
 
     createSubject: async (domain, form) => {
-      const err = validateSubjectForm(form)
+      const err = validateSubjectForm(form, domain)
       if (err) throw new Error(err)
       return await wrap(() => repo.create(domain, form))
     },

@@ -60,6 +60,7 @@
       <StudentActionModal
         v-model="actionModal.open"
         :type="actionModal.type"
+        :menu-key="menuKey"
         :student="student"
         @saved="reloadStudent"
         @deleted="onDeleted"
@@ -85,6 +86,7 @@ const props = defineProps({
 const route = useRoute()
 const { canField } = usePermission()
 const { fetchStudentByMssv } = useStudentData()
+const snackbar = useSnackbarStore()
 const { loadSettings } = useStudentProfileSettings()
 
 const student = ref(null)
@@ -110,14 +112,16 @@ function formatValue(value, type) {
 }
 
 async function reloadStudent() {
-  student.value = await fetchStudentByMssv(route.params.mssv)
+  student.value = await fetchStudentByMssv(route.params.mssv, props.menuKey)
 }
 
 onMounted(async () => {
   loading.value = true
   loadSettings(props.menuKey)
   try {
-    student.value = await fetchStudentByMssv(route.params.mssv)
+    student.value = await fetchStudentByMssv(route.params.mssv, props.menuKey)
+  } catch (e) {
+    snackbar.trigger({ message: e.message || 'Failed to load student.', color: 'error' })
   } finally {
     loading.value = false
   }

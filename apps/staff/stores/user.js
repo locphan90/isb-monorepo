@@ -2,7 +2,8 @@ import { defineStore } from 'pinia'
 import { arrDomain } from '~/utils/globals'
 
 export const useUserStore = defineStore('user', () => {
-  const supabase = useSupabase()
+  // Đọc hồ sơ qua /api/me (server dùng service role). requestFetch chuyển tiếp cookie session khi render phía server.
+  const requestFetch = useRequestFetch()
   const { user: sessionUser, clear } = useUserSession()
 
   const user = ref({
@@ -24,12 +25,8 @@ export const useUserStore = defineStore('user', () => {
     }
 
     try {
-      const { data } = await supabase
-        .from('tbl_misc')
-        .select('user_role:obj_json, user_right:arr_json')
-        .eq('cat', 'USERS')
-        .ilike('val', email.trim())
-        .maybeSingle()
+      // Chỉ trả dữ liệu của chính email trong session; user đã bị khóa / không có trong danh sách -> lỗi 403 -> reset
+      const data = await requestFetch('/api/me')
 
       const role = data?.user_role || {}
       const isbApp = data?.user_right?.ISB_APP

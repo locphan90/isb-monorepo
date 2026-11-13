@@ -26,7 +26,7 @@
         </p>
 
         <template v-else-if="type === 'edit'">
-          <StudentProfileForm v-if="editData" :model-value="editData" />
+          <StudentProfileForm v-if="editData" :model-value="editData" :menu-key="menuKey" />
           <p v-if="feedback" class="feedback" :class="{ 'feedback--error': isError }">{{ feedback }}</p>
         </template>
       </v-card-text>
@@ -45,6 +45,7 @@ const props = defineProps({
   modelValue: { type: Boolean, default: false },
   type: { type: String, default: null },
   student: { type: Object, default: null },
+  menuKey: { type: String, required: true }, // menu (phòng ban) đang thao tác: server dùng để kiểm tra quyền và nhóm dữ liệu được sửa
 })
 const emit = defineEmits(['update:modelValue', 'saved', 'deleted'])
 
@@ -92,7 +93,7 @@ async function handleSave() {
   feedback.value = ''
   isError.value = false
   try {
-    await updateStudent(props.student.id, editData.value)
+    await updateStudent(props.student.id, editData.value, props.menuKey)
     emit('saved')
     close()
   } catch (e) {
@@ -113,7 +114,7 @@ async function handleDelete() {
   feedback.value = ''
   isError.value = false
   try {
-    await retireStudent(props.student.id)
+    await retireStudent(props.student.id, props.menuKey)
     emit('deleted')
     close()
   } catch (e) {

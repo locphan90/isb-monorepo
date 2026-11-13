@@ -90,8 +90,8 @@ export default defineNuxtConfig({
   },
 
   // Chỉ khai báo phần PRIVATE dùng chung (server). Key này tuyệt đối không đưa vào `public`.
-  // App staff tự thêm `public.supabaseUrl/supabaseKey` vì code cũ của staff còn gọi Supabase từ trình duyệt;
-  // app student thì không cần (trình duyệt không chạm Supabase).
+  // Không app nào có anon key trong `public`: trình duyệt không chạm Supabase, mọi truy vấn đi qua server.
+  // (App staff chỉ giữ `public.supabaseUrl` làm dự phòng cho NUXT_SUPABASE_URL.)
   runtimeConfig: {
     supabaseUrl: process.env.NUXT_SUPABASE_URL || process.env.NUXT_PUBLIC_SUPABASE_URL || '',
     supabaseServiceRoleKey: process.env.NUXT_SUPABASE_SERVICE_ROLE_KEY || '',

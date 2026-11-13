@@ -9,7 +9,6 @@ export const escapeLike = (s) => s.replace(/[\\%_]/g, '\\$&')
 
 // Chỉ user admin còn hoạt động trong tbl_misc, có quyền menu (và nút nếu truyền buttonKey)
 // theo cấu trúc PERMISSIONS: { [menuKey]: { menu: true, buttons: { [btnKey]: true } } }
-// Trả về { email, domains }: domains = các domain của user trong tbl_misc (obj_json.Domain, cách nhau bằng dấu phẩy)
 export const requireAdminAccess = async (event, menuKey, buttonKey = null) => {
   const { user } = await requireUserSession(event)
   const email = user?.email?.trim()
@@ -31,14 +30,12 @@ export const requireAdminAccess = async (event, menuKey, buttonKey = null) => {
   }
   if (!data) throw createError({ statusCode: 403, statusMessage: 'FORBIDDEN' })
 
-  const domains = String(data.user_role?.Domain || '').split(',').map((d) => d.trim()).filter(Boolean)
-
-  if (SUPER_ADMIN_RANKS.includes(data.user_role?.Rank)) return { email, domains }
+  if (SUPER_ADMIN_RANKS.includes(data.user_role?.Rank)) return { email, isSuper: true }
 
   const perm = data.user_right?.PERMISSIONS?.[menuKey]
   const allowed = perm?.menu === true && (!buttonKey || perm?.buttons?.[buttonKey] === true)
   if (!allowed) throw createError({ statusCode: 403, statusMessage: 'FORBIDDEN' })
-  return { email, domains }
+  return { email, isSuper: false }
 }
 
 // Bất kỳ nhân viên còn hoạt động trong tbl_misc (không cần quyền menu cụ thể).

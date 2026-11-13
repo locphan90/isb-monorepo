@@ -1,78 +1,59 @@
-import { useSupabase } from '#imports'
+// Hồ sơ sinh viên: mọi thao tác đi qua server (/api/students*). Server kiểm tra quyền menu / nút của phòng ban, lọc dữ liệu theo nhóm
+// trường phòng ban được phép và kiểm tra dữ liệu gửi lên; trình duyệt không còn đọc / ghi tbl_student bằng anon key.
+// menuKey = menu (phòng ban) của trang đang dùng, ví dụ 'registrar-student-list'.
 
-export const STUDENT_TABLE = 'tbl_student'
-
-let _client = null
-function getClient() {
-  if (!_client) _client = useSupabase()
-  return _client
+const MESSAGES = {
+  STUDENT_DUPLICATED: 'A student with this MSSV already exists.',
+  STUDENT_NOT_FOUND: 'Student not found. It may have been deleted. Please reload.',
+  FORBIDDEN: 'You do not have permission to do this.',
+  INVALID_BODY: 'Invalid data.',
 }
 
-// Phân trang bằng .range() của Supabase (không tải hết rồi cắt ở client)
-// + { count: 'exact' } để biết tổng số dòng, dùng tính tổng số trang.
-export async function fetchStudentList({ search = '', page = 1, pageSize = 20 } = {}) {
-  const from = (page - 1) * pageSize
-  const to = from + pageSize - 1
+// Lỗi từ server -> Error có câu thông báo ngắn cho giao diện
+const toError = (e) => {
+  const text = [e?.data?.statusMessage, e?.statusMessage].filter(Boolean).join(' | ')
+  const code = Object.keys(MESSAGES).find((c) => text.includes(c))
+  if (code) return new Error(MESSAGES[code])
+  if (e?.data?.statusMessage?.startsWith('INVALID:')) return new Error(e.data.statusMessage.slice(8).trim())
+  return new Error('Something went wrong. Please try again.')
+}
 
-  let query = getClient()
-    .from(STUDENT_TABLE)
-    .select('id, mssv, obj_json', { count: 'exact' })
-    .eq('i_status', 0)
-    .order('mssv')
-    .range(from, to)
-
-  if (search?.trim()) {
-    // Bỏ các ký tự có nghĩa trong cú pháp .or() của PostgREST (dấu phẩy, ngoặc, nháy, \ % *):
-    // gõ "Nguyen, A" không còn làm vỡ câu lọc. FullName nằm trong objProfile.
-    const term = search.trim().replace(/[,()"\\%*]/g, ' ').trim()
-    if (term) {
-      query = query.or(`mssv.ilike.%${term}%,obj_json->objProfile->>FullName.ilike.%${term}%`)
-    }
+const call = async (fn) => {
+  try {
+    return await fn()
+  } catch (e) {
+    throw toError(e)
   }
-
-  const { data, error, count } = await query
-  if (error) throw error
-  return { data: data ?? [], count: count ?? 0 }
 }
 
-export async function fetchStudentByMssv(mssv) {
-  const { data, error } = await getClient()
-    .from(STUDENT_TABLE)
-    .select('id, mssv, obj_json, i_status')
-    .eq('mssv', mssv)
-    .maybeSingle()
-
-  if (error) throw error
-  return data
+// { data: [{ id, mssv, obj_json }], count } — obj_json chỉ gồm các nhóm trường phòng ban được xem
+export async function fetchStudentList({ search = '', page = 1, pageSize = 20, menuKey } = {}) {
+  const res = await call(() => $fetch('/api/students', { query: { menuKey, search, page, pageSize } }))
+  return { data: res.data ?? [], count: res.count ?? 0 }
 }
 
-// Tạo sinh viên mới
+// { id, mssv, obj_json, i_status } hoặc null nếu không có sinh viên này
+export async function fetchStudentByMssv(mssv, menuKey) {
+  try {
+    return await $fetch(`/api/students/${encodeURIComponent(mssv)}`, { query: { menuKey } })
+  } catch (e) {
+    if (e?.statusCode === 404 || e?.data?.statusMessage === 'STUDENT_NOT_FOUND') return null
+    throw toError(e)
+  }
+}
+
+// Tạo sinh viên mới (cần quyền menu Add Student). domain = domain đang chọn; server xác nhận lại theo user
 export async function createStudent(mssv, objJson, domain = null) {
-  const { data, error } = await getClient()
-    .from(STUDENT_TABLE)
-    .insert({ mssv, obj_json: objJson, domain: domain || null, i_status: 0 })
-    .select('id, mssv, obj_json, i_status')
-    .single()
- 
-  if (error) throw error
-  return data
+  const res = await call(() => $fetch('/api/students/create', { method: 'POST', body: { mssv, objJson, domain } }))
+  return res.student
 }
 
-export async function updateStudent(id, objJson) {
-  const { error } = await getClient()
-    .from(STUDENT_TABLE)
-    .update({ obj_json: objJson })
-    .eq('id', id)
-
-  if (error) throw error
+// Chỉ các nhóm trường phòng ban được phép mới được ghi; trường không gửi lên giữ nguyên
+export async function updateStudent(id, objJson, menuKey) {
+  await call(() => $fetch('/api/students/update', { method: 'POST', body: { menuKey, id, objJson } }))
 }
 
-// Xoá sinh viên - tạm thời cập nhật istatus = 1 (retire)
-export async function retireStudent(id) {
-  const { error } = await getClient()
-    .from(STUDENT_TABLE)
-    .update({ i_status: 1 })
-    .eq('id', id)
-
-  if (error) throw error
+// Xóa sinh viên - cập nhật i_status = 1 (retire)
+export async function retireStudent(id, menuKey) {
+  await call(() => $fetch('/api/students/retire', { method: 'POST', body: { menuKey, id } }))
 }

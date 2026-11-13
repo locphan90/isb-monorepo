@@ -25,14 +25,10 @@ export function useRequiredSubjects() {
   }
 
   // Lưu danh sách môn của 1 domain. Toàn bộ môn nằm chung 1 dòng trong
-  // tbl_misc nên phải đọc lại bản mới nhất rồi giữ nguyên môn của domain khác,
-  // nếu không sẽ ghi đè mất dữ liệu của họ.
+  // tbl_misc; server đọc bản mới nhất rồi giữ nguyên môn của domain khác
+  // (không ghi đè dữ liệu của họ) và trả về danh sách đã gộp.
   async function saveSubjects(list, domain) {
-    const latest = await fetchRequiredSubjects()
-    const others = latest.filter((s) => s.domain && s.domain !== domain)
-    const merged = [...others, ...list.map((s) => ({ ...s, domain }))]
-    await saveRequiredSubjects(merged)
-    subjects.value = merged
+    subjects.value = await saveRequiredSubjects(list, domain)
     loaded = true
   }
 

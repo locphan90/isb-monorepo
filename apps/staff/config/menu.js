@@ -38,11 +38,11 @@ export const menuItems = [
     icon: 'mdiHumanMaleBoard',
     path: '/AcademicAdmin/Academic-Admin',
     children: [
+      { key: 'academic-course-create', label: 'Create Course', icon: 'mdiBookPlus', path: '/AcademicAdmin/Course-Create' },
       { key: 'eap-specific', label: 'EAP Specific', icon: 'mdiTranslate', path: '/AcademicAdmin/EAP-Specific', domain: 'EAP' },
       { key: 'isp-specific', label: 'ISP Specific', icon: 'mdiWeb', path: '/AcademicAdmin/ISP-Specific', domain: 'ISP' },
       { key: 'academic-subject', label: 'Subjects', icon: 'mdiBookOpenPageVariant', path: '/AcademicAdmin/Subject-Form' },
       { key: 'academic-rate', label: 'Rates', icon: 'mdiCashMultiple', path: '/AcademicAdmin/Rate-Form' },
-      { key: 'academic-course-create', label: 'Create Course', icon: 'mdiBookPlus', path: '/AcademicAdmin/Course-Create' },
       { key: 'academic-course-schedule', label: 'Course Schedule', icon: 'mdiCalendarMonth', path: '/AcademicAdmin/Course-Schedule' },
       { key: 'academic-lecturer-profile', label: 'Lecturer Profile', icon: 'mdiAccountTie', path: '/AcademicAdmin/Lecturer-Profile' }
     ]

@@ -63,6 +63,7 @@
       v-model="actionModal.open"
       :type="actionModal.type"
       :student="actionModal.student"
+      :menu-key="menuKey"
       @saved="load"
       @deleted="load"
     />
@@ -82,6 +83,7 @@ const props = defineProps({
 const { canField } = usePermission()
 const { loadSettings } = useStudentProfileSettings()
 const { fetchStudentList } = useStudentData()
+const snackbar = useSnackbarStore()
 
 const search = ref('')
 const students = ref([])
@@ -116,9 +118,12 @@ async function load() {
       search: search.value,
       page: page.value,
       pageSize: pageSize.value,
+      menuKey: props.menuKey,
     })
     students.value = data
     totalCount.value = count
+  } catch (e) {
+    snackbar.trigger({ message: e.message || 'Failed to load students.', color: 'error' })
   } finally {
     loading.value = false
   }

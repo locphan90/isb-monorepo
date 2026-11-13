@@ -1,31 +1,13 @@
-// Đọc/ghi catalog nút dùng chung (tbl_misc, cat='PERM_DEFS', val='BUTTONS').
-// I/O Supabase — logic cache/orchestration nằm ở composables/useButtonRegistry.js.
+// Đọc/ghi catalog nút dùng chung (tbl_misc, cat='PERM_DEFS', val='BUTTONS') qua server (/api/permission-catalog).
+// Trình duyệt không còn đọc/ghi bảng này bằng anon key. Logic cache/orchestration nằm ở composables/useButtonRegistry.js.
 
-import { useSupabase } from '#imports'
-
-const CAT = 'PERM_DEFS'
-const VAL = 'BUTTONS'
-
-let _client = null
-function getClient() {
-  if (!_client) _client = useSupabase()
-  return _client
+// => { [menuKey]: { [btnKey]: { label } } }
+export async function fetchButtonCatalog() {
+  const { catalog } = await $fetch('/api/permission-catalog')
+  return catalog ?? {}
 }
 
-export async function fetchButtonCatalogRow() {
-  const { data } = await getClient()
-    .from('tbl_misc')
-    .select('id, arr_json')
-    .eq('cat', CAT)
-    .eq('val', VAL)
-    .maybeSingle()
-  return data ?? null
-}
-
-export async function insertButtonCatalogRow(arrJson) {
-  await getClient().from('tbl_misc').insert({ cat: CAT, val: VAL, arr_json: arrJson, i_status: 0 })
-}
-
-export async function updateButtonCatalogRow(id, arrJson) {
-  await getClient().from('tbl_misc').update({ arr_json: arrJson }).eq('id', id)
+// Đăng ký (gộp) một nút vào catalog; server kiểm tra định dạng và giới hạn tổng số nút
+export async function registerButtonInCatalog(menuKey, btnKey, label) {
+  await $fetch('/api/permission-catalog', { method: 'POST', body: { menuKey, btnKey, label } })
 }

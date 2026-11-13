@@ -44,6 +44,7 @@ Return ONLY a raw JSON array of objects with keys "id" and "full_name".
 If no records are found, return [].`
 
 export default defineEventHandler(async (event) => {
+  await requireStaffSession(event) // chỉ nhân viên đang hoạt động đã đăng nhập (trước đây ai cũng gọi được)
   const form = await readMultipartFormData(event)
   const pdfPart = form?.find(
     (part) => part.type === 'application/pdf' || part.filename?.endsWith('.pdf'),
