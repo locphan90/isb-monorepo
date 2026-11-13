@@ -16,7 +16,7 @@ export default defineNuxtConfig({
     public: {
       // Chỉ còn URL (không phải bí mật; server vẫn đọc làm dự phòng cho NUXT_SUPABASE_URL). KHÔNG còn anon key:
       // trình duyệt không gọi Supabase, mọi truy vấn đi qua server bằng service role.
-      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL || '',
+      supabaseUrl: process.env.NUXT_SUPABASE_URL || '',
     },
   },
 })
